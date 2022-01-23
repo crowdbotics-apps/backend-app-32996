@@ -1,4 +1,4 @@
-pip build:
+build:
   docker:
     web: Dockerfile
   config:
