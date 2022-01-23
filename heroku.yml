@@ -1,4 +1,4 @@
-build:
+pip build:
   docker:
     web: Dockerfile
   config:
@@ -7,5 +7,6 @@ build:
 release:
   image: web
   command:
+    - python3 manage.py makemigrations
     - python3 manage.py migrate
     - python3 manage.py loaddata plan_data.yaml
