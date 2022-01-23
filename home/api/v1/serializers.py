@@ -8,6 +8,8 @@ from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from rest_framework import serializers
 from rest_auth.serializers import PasswordResetSerializer
+from home.models import *
+from home.constants import APP_CHOICES_LIST, FRAMEWORK_CHOICES_LIST
 
 
 User = get_user_model()
@@ -74,3 +76,55 @@ class UserSerializer(serializers.ModelSerializer):
 class PasswordSerializer(PasswordResetSerializer):
     """Custom serializer for rest_auth to solve reset password error"""
     password_reset_form_class = ResetPasswordForm
+
+class AppSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(max_length=6)
+    framework = serializers.CharField(max_length=12)
+    class Meta:
+        model = App
+        fields = ['id', 'name', 'description', 'type', 'framework', 'domain_name', 'screenshot', 'subscription', 'user', 'created_at', 'updated_at']
+
+    def validate_type(self, type):
+        if type not in APP_CHOICES_LIST:
+            raise serializers.ValidationError(_(f'{type} is not a valid app type. Valid values are {APP_CHOICES_LIST}'))
+        return type
+
+    def validate_framework(self, framework):
+        if framework not in FRAMEWORK_CHOICES_LIST:
+            raise serializers.ValidationError(_(f'{framework} is not a valid framework type. Valid values are  {FRAMEWORK_CHOICES_LIST}'))
+        return framework
+
+    def create(self, validated_data):
+        print("Creating App Record after validation..")
+        app = App(
+            name=validated_data.get('name'),
+            type=validated_data.get('type'),
+            description=validated_data.get('description'),
+            framework=validated_data.get('framework'),
+            domain_name=validated_data.get('domain_name'),
+            screenshot=f"{validated_data.get('name').lower()}_screenshot.png",
+            user = validated_data.get('user')
+        )
+        app.save()
+        return app
+
+    def update(self, instance, validated_data):
+        instance.name=validated_data.get('name')
+        instance.type=validated_data.get('type')
+        instance.framework=validated_data.get('framework')
+        if 'description' in validated_data:
+            instance.description=validated_data.get('description')
+        if 'domain_name' in validated_data:
+            instance.domain_name=validated_data.get('domain_name')
+        return instance
+
+class PlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = ['id', 'name', 'description', 'price', 'created_at', 'updated_at']
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ['id', 'user', 'plan', 'app', 'active', 'created_at', 'updated_at']

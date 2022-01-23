@@ -1,0 +1,18 @@
+- model: home.plan
+  pk: 1
+  fields:
+    name: Free
+    description: This is Free plan
+    price: $0
+- model: home.plan
+  pk: 2
+  fields:
+    name: Standard
+    description: This is Standard plan
+    price: $10
+- model: home.plan
+  pk: 3
+  fields:
+    name: Pro
+    description: This is Pro Plan
+    price: $25

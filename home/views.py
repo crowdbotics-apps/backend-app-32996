@@ -11,3 +11,5 @@ def home(request):
         'packages': packages
     }
     return render(request, 'home/index.html', context)
+
+
