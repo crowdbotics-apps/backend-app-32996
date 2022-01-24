@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 from allauth.account import app_settings as allauth_settings
@@ -78,36 +77,40 @@ class PasswordSerializer(PasswordResetSerializer):
     password_reset_form_class = ResetPasswordForm
 
 class AppSerializer(serializers.ModelSerializer):
+    # App Model Serializer for CRUD operations
     type = serializers.CharField(max_length=6)
     framework = serializers.CharField(max_length=12)
     class Meta:
         model = App
         fields = ['id', 'name', 'description', 'type', 'framework', 'domain_name', 'screenshot', 'subscription', 'user', 'created_at', 'updated_at']
 
+    # Overriding type validate method for custom error message
     def validate_type(self, type):
         if type not in APP_CHOICES_LIST:
             raise serializers.ValidationError(_(f'{type} is not a valid app type. Valid values are {APP_CHOICES_LIST}'))
         return type
 
+    # Overriding framework validate method for custom error message
     def validate_framework(self, framework):
         if framework not in FRAMEWORK_CHOICES_LIST:
             raise serializers.ValidationError(_(f'{framework} is not a valid framework type. Valid values are  {FRAMEWORK_CHOICES_LIST}'))
         return framework
 
+    # Overriding create method for fields values overriding
     def create(self, validated_data):
-        print("Creating App Record after validation..")
         app = App(
             name=validated_data.get('name'),
             type=validated_data.get('type'),
             description=validated_data.get('description'),
             framework=validated_data.get('framework'),
             domain_name=validated_data.get('domain_name'),
-            screenshot=f"{validated_data.get('name').lower()}_screenshot.png",
+            screenshot=f"{validated_data.get('name').replace(' ', '_').lower()}_screenshot.png",
             user = validated_data.get('user')
         )
         app.save()
         return app
 
+    # Overriding update method for selective fields update
     def update(self, instance, validated_data):
         instance.name=validated_data.get('name')
         instance.type=validated_data.get('type')
@@ -116,15 +119,17 @@ class AppSerializer(serializers.ModelSerializer):
             instance.description=validated_data.get('description')
         if 'domain_name' in validated_data:
             instance.domain_name=validated_data.get('domain_name')
+        instance.save()
         return instance
 
 class PlanSerializer(serializers.ModelSerializer):
+    # Plan Model Serializer for CRUD operations
     class Meta:
         model = Plan
         fields = ['id', 'name', 'description', 'price', 'created_at', 'updated_at']
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-
+    # Subscription Model Serializer for CRUD operations
     class Meta:
         model = Subscription
         fields = ['id', 'user', 'plan', 'app', 'active', 'created_at', 'updated_at']

@@ -3,13 +3,13 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import Http404
 from home.models import *
 from rest_framework import permissions
 
 from home.api.v1.serializers import (
     SignupSerializer,
     UserSerializer,
+    PasswordSerializer,
     AppSerializer,
     PlanSerializer,
     SubscriptionSerializer
@@ -36,9 +36,12 @@ class LoginViewSet(ViewSet):
         user_serializer = UserSerializer(user)
         return Response({"token": token.key, "user": user_serializer.data})
 
+class PasswordViewSet(ModelViewSet):
+    serializer_class = PasswordSerializer
+    http_method_names = ["post"]
 
 class AppViewSet(ModelViewSet):
-    # we are telling we have to use AppSerializer for the JSON converstion of AppViewSet
+    # we are telling we have to use AppSerializer for the JSON conversion of AppViewSet
     serializer_class = AppSerializer
     queryset = App.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
@@ -50,7 +53,6 @@ class AppViewSet(ModelViewSet):
 
 
     def retrieve(self, request, *args, **kwargs):
-
         app_id = kwargs['pk']
         app = App.objects.filter(id=app_id).first()
         token = Token.objects.get(key=request.auth.key)
@@ -95,7 +97,7 @@ class AppViewSet(ModelViewSet):
 
 
 class PlanViewSet(ModelViewSet):
-    # we are telling we have to use AppSerializer for the JSON converstion of AppViewSet
+    # we are telling we have to use PlanSerializer for the JSON conversion of PlanViewSet
     serializer_class = PlanSerializer
     queryset = Plan.objects.all()
     http_method_names = ["get"]
@@ -103,6 +105,7 @@ class PlanViewSet(ModelViewSet):
 
 
 class SubscriptionViewSet(ModelViewSet):
+    # we are telling we have to use SubscriptionSerializer for the JSON conversion of SubscriptionViewSet
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
@@ -125,7 +128,7 @@ class SubscriptionViewSet(ModelViewSet):
         return Response(data=SubscriptionSerializer(subscription).data)
 
     def create(self, request, *args, **kwargs):
-        # override user id which is creating user
+        # active user id
         request.data['user'] = Token.objects.get(key=request.auth.key).user_id
         serializer = self.serializer_class(
             data=request.data, context={"request": request}

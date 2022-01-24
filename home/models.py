@@ -51,8 +51,8 @@ class Plan(models.Model):
         default=PRICE_CHOICES_LIST[0],
         blank=False
     )
-    created_at = models.DateTimeField('%m/%d/%Y %H:%M:%S', default=timezone.now(), editable=False)
-    updated_at = models.DateTimeField('%m/%d/%Y %H:%M:%S', default=timezone.now(), editable=False)
+    created_at = models.DateTimeField('%m/%d/%Y %H:%M:%S', default=timezone.now, editable=False)
+    updated_at = models.DateTimeField('%m/%d/%Y %H:%M:%S', default=timezone.now, editable=False)
 
 
 class Subscription(models.Model):
