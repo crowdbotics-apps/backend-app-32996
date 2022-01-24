@@ -7,4 +7,4 @@ build:
 release:
   image: web
   command:
-    - python3 manage.py flush && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata plan_data.yaml && python3 manage.py test
+    - python3 manage.py flush --no-input && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata plan_data.yaml && python3 manage.py test
